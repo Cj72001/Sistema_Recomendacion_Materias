@@ -20,6 +20,9 @@ public class Carrera {
 	@Column(name="uv_aprobadas")
 	Integer uvAprobadas;
 	
+	@Column(name="cantidad_materias_aprobadas")
+	Integer cantidadMateriasAprobadas;
+	
 	@Column(name="materias_aprobadas")
 	String materiasAprobadas;
 	
