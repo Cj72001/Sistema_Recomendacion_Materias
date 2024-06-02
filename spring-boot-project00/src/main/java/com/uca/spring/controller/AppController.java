@@ -1,0 +1,400 @@
+package com.uca.spring.controller;
+
+
+import com.uca.spring.model.Carrera;
+import com.uca.spring.model.Estudiante;
+import com.uca.spring.model.Logs;
+import com.uca.spring.model.Materia;
+import com.uca.spring.model.MateriaAprobada;
+import com.uca.spring.model.MateriaExcel;
+import com.uca.spring.service.CarreraService;
+import com.uca.spring.service.EstudianteService;
+import com.uca.spring.service.LogsService;
+import com.uca.spring.service.MateriaService;
+import com.uca.spring.util.Util;
+
+@Controller
+@RequestMapping("/")
+public class AppController {
+
+	// services para DML de la bdd
+	@Autowired
+	CarreraService carreraService;
+	@Autowired
+	EstudianteService estudianteService;
+	@Autowired
+	MateriaService materiaService;
+	@Autowired
+	LogsService logsService;
+	
+	Estudiante estudianteEjemplo = new Estudiante();
+	Carrera carreraEstudianteEjemplo = new Carrera();
+
+	// Creando estudiante ejemplo:
+	Estudiante estudiante1 = new Estudiante();
+	boolean estudianteExiste = false;
+	Estudiante estudianteLogeado = new Estudiante();
+
+	// Creando carrera para Estudiante1:
+	Carrera carreraEstudiante1 = new Carrera();
+	Carrera carreraEstudianteLogeado = new Carrera(); // carrera que se inicializara respecto al estudiante que se
+														// loguea
+
+
+	// Crear todos los objetos para la malla curricular (ing informatica):
+	Materia materiaEstudianteEjemplo0 = new Materia();
+	Materia materiaEstudianteEjemplo1 = new Materia();
+	Materia materiaEstudianteEjemplo2 = new Materia();
+	Materia materiaEstudianteEjemplo3 = new Materia();
+	Materia materiaEstudianteEjemplo4 = new Materia();
+	Materia materiaEstudianteEjemplo5 = new Materia();
+	Materia materiaEstudianteEjemplo6 = new Materia();
+	Materia materiaEstudianteEjemplo7 = new Materia();
+	Materia materiaEstudianteEjemplo8 = new Materia();
+	Materia materiaEstudianteEjemplo9 = new Materia();
+	Materia materiaEstudianteEjemplo10 = new Materia();
+	Materia materiaEstudianteEjemplo11 = new Materia();
+	Materia materiaEstudianteEjemplo12 = new Materia();
+	Materia materiaEstudianteEjemplo13 = new Materia();
+	Materia materiaEstudianteEjemplo14 = new Materia();
+	Materia materiaEstudianteEjemplo15 = new Materia();
+	Materia materiaEstudianteEjemplo16 = new Materia();
+	Materia materiaEstudianteEjemplo17 = new Materia();
+	Materia materiaEstudianteEjemplo18 = new Materia();
+	Materia materiaEstudianteEjemplo19 = new Materia();
+	Materia materiaEstudianteEjemplo20 = new Materia();
+	Materia materiaEstudianteEjemplo21 = new Materia();
+	Materia materiaEstudianteEjemplo22 = new Materia();
+	Materia materiaEstudianteEjemplo23 = new Materia();
+	Materia materiaEstudianteEjemplo24 = new Materia();
+	Materia materiaEstudianteEjemplo25 = new Materia();
+	Materia materiaEstudianteEjemplo26 = new Materia();
+	Materia materiaEstudianteEjemplo27 = new Materia();
+	Materia materiaEstudianteEjemplo28 = new Materia();
+	Materia materiaEstudianteEjemplo29 = new Materia();
+	Materia materiaEstudianteEjemplo30 = new Materia();
+	Materia materiaEstudianteEjemplo31 = new Materia();
+	Materia materiaEstudianteEjemplo32 = new Materia();
+	Materia materiaEstudianteEjemplo33 = new Materia();
+	Materia materiaEstudianteEjemplo34 = new Materia();
+	Materia materiaEstudianteEjemplo35 = new Materia();
+	Materia materiaEstudianteEjemplo36 = new Materia();
+	Materia materiaEstudianteEjemplo37 = new Materia();
+	Materia materiaEstudianteEjemplo38 = new Materia();
+	Materia materiaEstudianteEjemplo39 = new Materia();
+	Materia materiaEstudianteEjemplo40 = new Materia();
+	Materia materiaEstudianteEjemplo41 = new Materia();
+	Materia materiaEstudianteEjemplo42 = new Materia();
+	Materia materiaEstudianteEjemplo43 = new Materia();
+	Materia materiaEstudianteEjemplo44 = new Materia();
+
+	
+
+	//// ACTIONS PARA RUTAS (para cargar jsp):
+	// -------------------------------------------------------------------------------------------------------------------------
+
+	// Action que se invoca al iniciar la app en la ruta (/)
+	@GetMapping("/")
+	public String getForm() {
+
+		// Seteando atributos para estudiante1 y crearlo en bdd para ejemplo:
+		estudiante1.setCarnetEstudiante(38619);
+		estudiante1.setIdEstudiante(1);
+		estudiante1.setNombreEstudiante("Omar Flores Alas");
+		estudiante1.setContrasenaEstudiante("123");
+		estudiante1.setCarreraEstudiante(1);
+		estudianteService.createEstudiante(estudiante1);
+
+		// seteando carrera1 para ejemplo (este objeto se enlazara con Estudiante por
+		// medio de su FK)
+		carreraEstudiante1.setIdCarrera(1);
+		carreraEstudiante1.setUvAprobadas(102);
+		carreraEstudiante1.setCantidadMateriasAprobadas(4);
+		carreraEstudiante1.setMateriasAprobadas("1,2,3,4");
+		// carreraEstudiante1.setNotaAprobada("10,5,5,5");
+		carreraEstudiante1.setNotaAprobada("10,5,10,5");
+		carreraEstudiante1.setCantidadMateriasPosibles(4);
+		carreraEstudiante1.setMateriasPosibles("5,6,7,8");
+		carreraEstudiante1.setCantidadActividadesExtracurriculares(2);
+		carreraService.createCarrera(carreraEstudiante1);
+
+		// seteando materias (seran las materias aprobadas relacionadas al estudiante)
+		// para ejemplo (este objeto se enlazara con Estudiante por medio de su FK)
+		// OBJETO DE MALLA (prerequisito =0 cuando sea bachillerato)
+		// materias de ingenieria informatica:
+		materiaEstudianteEjemplo0.setNombreMateria("Bachillerato");
+		materiaEstudianteEjemplo0.setIdMateria(0);
+		materiaEstudianteEjemplo0.setUv(0);
+		materiaEstudianteEjemplo0.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo0);
+		
+		materiaEstudianteEjemplo1.setNombreMateria("Precálculo");
+		materiaEstudianteEjemplo1.setIdMateria(1);
+		materiaEstudianteEjemplo1.setUv(4);
+		materiaEstudianteEjemplo1.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo1);
+		
+		materiaEstudianteEjemplo2.setNombreMateria("Optativa Técnica I");
+		materiaEstudianteEjemplo2.setIdMateria(2);
+		materiaEstudianteEjemplo2.setUv(3);
+		materiaEstudianteEjemplo2.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo2);
+
+		materiaEstudianteEjemplo3.setNombreMateria("Matemática Discreta I");
+		materiaEstudianteEjemplo3.setIdMateria(3);
+		materiaEstudianteEjemplo3.setUv(3);
+		materiaEstudianteEjemplo3.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo3);
+		
+		materiaEstudianteEjemplo4.setNombreMateria("Fundamentos de Programación");
+		materiaEstudianteEjemplo4.setIdMateria(4);
+		materiaEstudianteEjemplo4.setUv(4);
+		materiaEstudianteEjemplo4.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo4);
+
+		materiaEstudianteEjemplo5.setNombreMateria("Álgebra Vectorial y Matrices");
+		materiaEstudianteEjemplo5.setIdMateria(5);
+		materiaEstudianteEjemplo5.setUv(4);
+		materiaEstudianteEjemplo5.setPreRequisito("1");
+		materiaService.createMateria(materiaEstudianteEjemplo5);
+
+		materiaEstudianteEjemplo6.setNombreMateria("Cálculo I");
+		materiaEstudianteEjemplo6.setIdMateria(6);
+		materiaEstudianteEjemplo6.setUv(4);
+		materiaEstudianteEjemplo6.setPreRequisito("1");
+		materiaService.createMateria(materiaEstudianteEjemplo6);
+
+		materiaEstudianteEjemplo7.setNombreMateria("Programación de Estructuras Dinámicas");
+		materiaEstudianteEjemplo7.setIdMateria(7);
+		materiaEstudianteEjemplo7.setUv(4);
+		materiaEstudianteEjemplo7.setPreRequisito("3,4");
+		materiaService.createMateria(materiaEstudianteEjemplo7);
+
+		materiaEstudianteEjemplo8.setNombreMateria("Matemática Discreta II");
+		materiaEstudianteEjemplo8.setIdMateria(8);
+		materiaEstudianteEjemplo8.setUv(3);
+		materiaEstudianteEjemplo8.setPreRequisito("3");
+		materiaService.createMateria(materiaEstudianteEjemplo8);
+
+		materiaEstudianteEjemplo9.setNombreMateria("Física I");
+		materiaEstudianteEjemplo9.setIdMateria(9);
+		materiaEstudianteEjemplo9.setUv(5);
+		materiaEstudianteEjemplo9.setPreRequisito("5,6");
+		materiaService.createMateria(materiaEstudianteEjemplo9);
+
+		materiaEstudianteEjemplo10.setNombreMateria("Cálculo II");
+		materiaEstudianteEjemplo10.setIdMateria(10);
+		materiaEstudianteEjemplo10.setUv(4);
+		materiaEstudianteEjemplo10.setPreRequisito("5,6");
+		materiaService.createMateria(materiaEstudianteEjemplo10);
+
+		materiaEstudianteEjemplo11.setNombreMateria("Programación Orientada a Objetos");
+		materiaEstudianteEjemplo11.setIdMateria(11);
+		materiaEstudianteEjemplo11.setUv(4);
+		materiaEstudianteEjemplo11.setPreRequisito("7");
+		materiaService.createMateria(materiaEstudianteEjemplo11);
+
+		materiaEstudianteEjemplo12.setNombreMateria("Bases de Datos");
+		materiaEstudianteEjemplo12.setIdMateria(12);
+		materiaEstudianteEjemplo12.setUv(4);
+		materiaEstudianteEjemplo12.setPreRequisito("7");
+		materiaService.createMateria(materiaEstudianteEjemplo12);
+
+		materiaEstudianteEjemplo13.setNombreMateria("Electricidad y Magnetismo");
+		materiaEstudianteEjemplo13.setIdMateria(13);
+		materiaEstudianteEjemplo13.setUv(5);
+		materiaEstudianteEjemplo13.setPreRequisito("9,10");
+		materiaService.createMateria(materiaEstudianteEjemplo13);
+
+		materiaEstudianteEjemplo14.setNombreMateria("Cálculo III");
+		materiaEstudianteEjemplo14.setIdMateria(14);
+		materiaEstudianteEjemplo14.setUv(4);
+		materiaEstudianteEjemplo14.setPreRequisito("10");
+		materiaService.createMateria(materiaEstudianteEjemplo14);
+
+		materiaEstudianteEjemplo15.setNombreMateria("Programación WEB");
+		materiaEstudianteEjemplo15.setIdMateria(15);
+		materiaEstudianteEjemplo15.setUv(4);
+		materiaEstudianteEjemplo15.setPreRequisito("11");
+		materiaService.createMateria(materiaEstudianteEjemplo15);
+
+		materiaEstudianteEjemplo16.setNombreMateria("Administración de Bases de Datos");
+		materiaEstudianteEjemplo16.setIdMateria(16);
+		materiaEstudianteEjemplo16.setUv(4);
+		materiaEstudianteEjemplo16.setPreRequisito("12");
+		materiaService.createMateria(materiaEstudianteEjemplo16);
+
+		materiaEstudianteEjemplo17.setNombreMateria("Optativa Humanístico Social I");
+		materiaEstudianteEjemplo17.setIdMateria(17);
+		materiaEstudianteEjemplo17.setUv(3);
+		materiaEstudianteEjemplo17.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo17);
+
+		materiaEstudianteEjemplo18.setNombreMateria("Análisis Numérico");
+		materiaEstudianteEjemplo18.setIdMateria(18);
+		materiaEstudianteEjemplo18.setUv(4);
+		materiaEstudianteEjemplo18.setPreRequisito("14");
+		materiaService.createMateria(materiaEstudianteEjemplo18);
+
+		materiaEstudianteEjemplo19.setNombreMateria("Redes de Computadoras");
+		materiaEstudianteEjemplo19.setIdMateria(19);
+		materiaEstudianteEjemplo19.setUv(4);
+		materiaEstudianteEjemplo19.setPreRequisito("15");
+		materiaService.createMateria(materiaEstudianteEjemplo19);
+
+		materiaEstudianteEjemplo20.setNombreMateria("Programación de Dispositivos Móviles");
+		materiaEstudianteEjemplo20.setIdMateria(20);
+		materiaEstudianteEjemplo20.setUv(4);
+		materiaEstudianteEjemplo20.setPreRequisito("11");
+		materiaService.createMateria(materiaEstudianteEjemplo20);
+
+		materiaEstudianteEjemplo21.setNombreMateria("Análisis de Sistemas");
+		materiaEstudianteEjemplo21.setIdMateria(21);
+		materiaEstudianteEjemplo21.setUv(3);
+		materiaEstudianteEjemplo21.setPreRequisito("15");
+		materiaService.createMateria(materiaEstudianteEjemplo21);
+
+		materiaEstudianteEjemplo22.setNombreMateria("Física II");
+		materiaEstudianteEjemplo22.setIdMateria(22);
+		materiaEstudianteEjemplo22.setUv(5);
+		materiaEstudianteEjemplo22.setPreRequisito("9,10");
+		materiaService.createMateria(materiaEstudianteEjemplo22);
+
+		materiaEstudianteEjemplo23.setNombreMateria("Optativa Humanístico Social II");
+		materiaEstudianteEjemplo23.setIdMateria(23);
+		materiaEstudianteEjemplo23.setUv(3);
+		materiaEstudianteEjemplo23.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo23);
+
+		materiaEstudianteEjemplo24.setNombreMateria("Análisis de Algoritmos");
+		materiaEstudianteEjemplo24.setIdMateria(24);
+		materiaEstudianteEjemplo24.setUv(4);
+		materiaEstudianteEjemplo24.setPreRequisito("8");
+		materiaService.createMateria(materiaEstudianteEjemplo24);
+
+		materiaEstudianteEjemplo25.setNombreMateria("Programación de Artefactos");
+		materiaEstudianteEjemplo25.setIdMateria(25);
+		materiaEstudianteEjemplo25.setUv(4);
+		materiaEstudianteEjemplo25.setPreRequisito("13,15");
+		materiaService.createMateria(materiaEstudianteEjemplo25);
+
+		materiaEstudianteEjemplo26.setNombreMateria("Probabilidad y Estadística");
+		materiaEstudianteEjemplo26.setIdMateria(26);
+		materiaEstudianteEjemplo26.setUv(4);
+		materiaEstudianteEjemplo26.setPreRequisito("14");
+		materiaService.createMateria(materiaEstudianteEjemplo26);
+
+		materiaEstudianteEjemplo27.setNombreMateria("Seguridad en Entornos de Desarrollo");
+		materiaEstudianteEjemplo27.setIdMateria(27);
+		materiaEstudianteEjemplo27.setUv(4);
+		materiaEstudianteEjemplo27.setPreRequisito("8,16");
+		materiaService.createMateria(materiaEstudianteEjemplo27);
+
+		materiaEstudianteEjemplo28.setNombreMateria("Arquitectura de Computadoras");
+		materiaEstudianteEjemplo28.setIdMateria(28);
+		materiaEstudianteEjemplo28.setUv(4);
+		materiaEstudianteEjemplo28.setPreRequisito("13");
+		materiaService.createMateria(materiaEstudianteEjemplo28);
+
+		materiaEstudianteEjemplo29.setNombreMateria("Técnicas de Simulación en Computadoras");
+		materiaEstudianteEjemplo29.setIdMateria(29);
+		materiaEstudianteEjemplo29.setUv(4);
+		materiaEstudianteEjemplo29.setPreRequisito("26");
+		materiaService.createMateria(materiaEstudianteEjemplo29);
+
+		materiaEstudianteEjemplo30.setNombreMateria("Programación N-Capas");
+		materiaEstudianteEjemplo30.setIdMateria(30);
+		materiaEstudianteEjemplo30.setUv(4);
+		materiaEstudianteEjemplo30.setPreRequisito("11");
+		materiaService.createMateria(materiaEstudianteEjemplo30);
+
+		materiaEstudianteEjemplo31.setNombreMateria("Fundamentos de Inteligencia de Negocios");
+		materiaEstudianteEjemplo31.setIdMateria(31);
+		materiaEstudianteEjemplo31.setUv(4);
+		materiaEstudianteEjemplo31.setPreRequisito("16");
+		materiaService.createMateria(materiaEstudianteEjemplo31);
+
+		materiaEstudianteEjemplo32.setNombreMateria("Optativa Humanístico Social III");
+		materiaEstudianteEjemplo32.setIdMateria(32);
+		materiaEstudianteEjemplo32.setUv(3);
+		materiaEstudianteEjemplo32.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo32);
+
+		materiaEstudianteEjemplo33.setNombreMateria("Sistemas Operativos");
+		materiaEstudianteEjemplo33.setIdMateria(33);
+		materiaEstudianteEjemplo33.setUv(4);
+		materiaEstudianteEjemplo33.setPreRequisito("28");
+		materiaService.createMateria(materiaEstudianteEjemplo33);
+
+		materiaEstudianteEjemplo34.setNombreMateria("Programación Declarativa");
+		materiaEstudianteEjemplo34.setIdMateria(34);
+		materiaEstudianteEjemplo34.setUv(4);
+		materiaEstudianteEjemplo34.setPreRequisito("15");
+		materiaService.createMateria(materiaEstudianteEjemplo34);
+
+		materiaEstudianteEjemplo35.setNombreMateria("Ingeniería de Software");
+		materiaEstudianteEjemplo35.setIdMateria(35);
+		materiaEstudianteEjemplo35.setUv(4);
+		materiaEstudianteEjemplo35.setPreRequisito("21");
+		materiaService.createMateria(materiaEstudianteEjemplo35);
+
+		materiaEstudianteEjemplo36.setNombreMateria("Formulación y Evaluación de Proyectos");
+		materiaEstudianteEjemplo36.setIdMateria(36);
+		materiaEstudianteEjemplo36.setUv(4);
+		materiaEstudianteEjemplo36.setPreRequisito("21");
+		materiaService.createMateria(materiaEstudianteEjemplo36);
+
+		materiaEstudianteEjemplo37.setNombreMateria("Optativa Humanístico Social IV");
+		materiaEstudianteEjemplo37.setIdMateria(37);
+		materiaEstudianteEjemplo37.setUv(3);
+		materiaEstudianteEjemplo37.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo37);
+
+		materiaEstudianteEjemplo38.setNombreMateria("Optativa Técnica II");
+		materiaEstudianteEjemplo38.setIdMateria(38);
+		materiaEstudianteEjemplo38.setUv(4);
+		materiaEstudianteEjemplo38.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo38);
+
+		materiaEstudianteEjemplo39.setNombreMateria("Aplicaciones de Código Abierto");
+		materiaEstudianteEjemplo39.setIdMateria(39);
+		materiaEstudianteEjemplo39.setUv(4);
+		materiaEstudianteEjemplo39.setPreRequisito("21");
+		materiaService.createMateria(materiaEstudianteEjemplo39);
+
+		materiaEstudianteEjemplo40.setNombreMateria("Práctica Profesional I");
+		materiaEstudianteEjemplo40.setIdMateria(40);
+		materiaEstudianteEjemplo40.setUv(4);
+		materiaEstudianteEjemplo40.setPreRequisito("36");
+		materiaService.createMateria(materiaEstudianteEjemplo40);
+
+		materiaEstudianteEjemplo41.setNombreMateria("Optativa Técnica III");
+		materiaEstudianteEjemplo41.setIdMateria(41);
+		materiaEstudianteEjemplo41.setUv(4);
+		materiaEstudianteEjemplo41.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo41);
+
+		materiaEstudianteEjemplo42.setNombreMateria("Teorías de Lenguaje de Programación");
+		materiaEstudianteEjemplo42.setIdMateria(42);
+		materiaEstudianteEjemplo42.setUv(4);
+		materiaEstudianteEjemplo42.setPreRequisito("24");
+		materiaService.createMateria(materiaEstudianteEjemplo42);
+
+		materiaEstudianteEjemplo43.setNombreMateria("Optativa Humanístico Social V");
+		materiaEstudianteEjemplo43.setIdMateria(43);
+		materiaEstudianteEjemplo43.setUv(3);
+		materiaEstudianteEjemplo43.setPreRequisito("0");
+		materiaService.createMateria(materiaEstudianteEjemplo43);
+
+		materiaEstudianteEjemplo44.setNombreMateria("Práctica Profesional II");
+		materiaEstudianteEjemplo44.setIdMateria(44);
+		materiaEstudianteEjemplo44.setUv(4);
+		materiaEstudianteEjemplo44.setPreRequisito("40");
+		materiaService.createMateria(materiaEstudianteEjemplo44);
+
+
+		return "login.jsp";
+	}
+
+
+}
