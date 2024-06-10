@@ -1,5 +1,27 @@
 package com.uca.spring.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import org.apache.poi.EncryptedDocumentException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.uca.spring.model.Carrera;
 import com.uca.spring.model.Estudiante;
@@ -396,5 +418,28 @@ public class AppController {
 		return "login.jsp";
 	}
 
+	// Para menu:
+	@GetMapping("/mainPage")
+	public String mainPage(ModelMap modelMap) {
+
+		// Lista de tabla Estudiante
+		List<Estudiante> estudiantes = new ArrayList<Estudiante>();
+		estudianteService.getEstudiantes().forEach(e -> estudiantes.add(e));
+
+		estudiantes.forEach(e -> {
+			if (e.getIdEstudiante().toString().equals(estudianteLogeado.getIdEstudiante().toString())) {
+				estudianteLogeado = e;
+				carreraEstudianteLogeado = carreraService.getCarreraById(e.getIdEstudiante());
+			}
+		});
+
+		// menu atributos sobre la carrera del estudiante:
+		modelMap.put("nombreEstudiante", estudianteLogeado.getNombreEstudiante());
+		modelMap.put("numeroMateriasAprobadasEstudiante", carreraEstudianteLogeado.getCantidadMateriasAprobadas());
+		modelMap.put("materiasDisponiblesEstudiante", carreraEstudianteLogeado.getCantidadMateriasPosibles());
+		modelMap.put("actividadesExtracurricularesEstudiante",
+				carreraEstudianteLogeado.getCantidadActividadesExtracurriculares());
+		return "mainPage.jsp";
+	}
 
 }
