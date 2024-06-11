@@ -529,4 +529,60 @@ public class AppController {
 
 	}
 
+	// Para las materias aprovadas:
+	@GetMapping("/approvedSubjects")
+	public String approvedSubjects(ModelMap modelmap) {
+
+		// Separa las el id de las materias aprobadas que tiene el estudiante en la
+		// tabla carrera
+		// y busca las materias en la tabla Materia y las agrega a la lista materias
+		// para mostrarlas
+		List<Materia> materiasMA = new ArrayList<Materia>();
+
+		String materiasAprobadasIdsEstudiante = carreraService.getCarreraById(estudianteLogeado.getIdEstudiante())
+				.getMateriasAprobadas();
+		String[] split = materiasAprobadasIdsEstudiante.split(",");
+
+		for (int i = 0; i < split.length; i++) {
+
+			//TODO: ARREGLAR CUANDO EL ID SEA -1
+			//
+			//
+			if(split[i].equals("-1")){
+				materiasMA.add(new Materia());
+				continue;
+			}
+			materiasMA.add(materiaService.getMateriaById(Integer.parseInt(split[i])));
+		}
+		
+		List<MateriaAprobada> materiasAprobadasIds = new ArrayList<MateriaAprobada>();
+		int sizeMA = materiasMA.size();
+		
+		String[] split2 = carreraService.getCarreraById(estudianteLogeado.getIdEstudiante()).getNotaAprobada().split(",");
+		
+		for(int i=0; i<sizeMA; i++) {
+			
+			MateriaAprobada ma = new MateriaAprobada();
+			ma.setIdMateria(materiasMA.get(i).getIdMateria());
+			ma.setNombreMateria(materiasMA.get(i).getNombreMateria());
+			ma.setUv(materiasMA.get(i).getUv());
+			ma.setPreRequisito(materiasMA.get(i).getPreRequisito());
+			ma.setNota(split2[i]);
+			
+			materiasAprobadasIds.add(ma);
+		}
+
+		materiasMA.remove(null);
+		materiasAprobadasIds.remove(null);
+
+		if (materiasMA.size() == 1 && materiasMA.get(0).getNombreMateria().equals("Bachillerato")) {
+			modelmap.addAttribute("errorMA0", "En este momento no tienes materias aprobadas");
+			return "approvedSubjects.jsp";
+		} else {
+			modelmap.addAttribute("materiasMA", materiasAprobadasIds);
+			return "approvedSubjects.jsp";
+		}
+
+	}
+
 }
