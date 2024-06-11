@@ -442,4 +442,91 @@ public class AppController {
 		return "mainPage.jsp";
 	}
 
+	// Para las materias habiles:
+	@GetMapping("/availableSubjects")
+	public String availableSubjects(ModelMap modelmap) {
+
+		// Separa las el id de las materias aprobadas que tiene el estudiante en la
+		// tabla carrera
+		// y busca las materias en la tabla Materia y las agrega a la lista materias
+		// para mostrarlas
+		List<Materia> materiasP = new ArrayList<Materia>();
+		List<Materia> materiasA = new ArrayList<Materia>();
+		List<Double> notaAprobada = new ArrayList<Double>();
+
+		String[] split1 = carreraService.getCarreraById(estudianteLogeado.getIdEstudiante()).getMateriasPosibles()
+				.split(",");
+		String[] split2 = carreraService.getCarreraById(estudianteLogeado.getIdEstudiante()).getMateriasAprobadas()
+				.split(",");
+		String[] split3 = carreraService.getCarreraById(estudianteLogeado.getIdEstudiante()).getNotaAprobada()
+				.split(",");
+
+		// Agregando las materias posibles
+		for (int i = 0; i < split1.length; i++) {
+			materiasP.add(materiaService.getMateriaById(Integer.parseInt(split1[i])));
+		}
+		materiasP.remove(null);
+
+		// Crear un Comparator para ordenar por id
+        Comparator<Materia> comparator = new Comparator<Materia>() {
+            @Override
+            public int compare(Materia o1, Materia o2) {
+                return Integer.compare(o1.getIdMateria(), o2.getIdMateria());
+            }
+        };
+
+		// Ordenar la lista usando Collections.sort
+        Collections.sort(materiasP, comparator);
+
+		// Agregando las materias aprobadas y sus notas
+		for (int i = 0; i < split2.length; i++) {
+			materiasA.add(materiaService.getMateriaById(Integer.parseInt(split2[i])));
+			notaAprobada.add(Double.valueOf(split3[i]));
+		}
+		materiasA.remove(null);
+
+		if(materiasA.size()==1 && materiasA.get(0).getNombreMateria().equals("Bachillerato")){
+			materiasA.remove(0);
+		}
+
+		notaAprobada.remove(null);
+
+		// Obteniendo las materias recomendadas desde la clase Util
+		File f = new File(pathExcelEstudiante);
+		List<Materia> materiasR = new ArrayList<>();
+
+		if(f.exists()){
+			List<MateriaExcel> materiasExcel = Util.materiasRecomendadas(f);
+		List<Materia> materias = materiaService.getMaterias();
+
+		materias.forEach(m->{
+			materiasExcel.forEach(m2->{
+				if(m.getIdMateria().toString().equals(m2.getIdMateria())){
+					materiasR.add(m);
+				}
+			});
+		});
+		}
+		
+		
+
+		if (materiasP.isEmpty()) {
+			modelmap.addAttribute("errorSem3", "En este momento no tienes materias disponibles, Por favor agregar EXCEL");
+			return "availableSubjects.jsp";
+		} else {
+
+			if (materiasA.isEmpty() || !(f.exists())) {
+				modelmap.addAttribute("materias", materiasP);
+				modelmap.addAttribute("errorSem3", "En este momento no tienes materias recomendadas");
+				return "availableSubjects.jsp";
+			} else {
+				modelmap.addAttribute("materias", materiasP);
+				modelmap.addAttribute("materiasR", materiasR);
+				return "availableSubjects.jsp";
+			}
+
+		}
+
+	}
+
 }
