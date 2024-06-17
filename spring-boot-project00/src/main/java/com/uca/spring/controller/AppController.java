@@ -585,4 +585,56 @@ public class AppController {
 
 	}
 
+	// Al volver al login o al deslogearse para que reinicie el estudiante logeado
+	@GetMapping("/login")
+	public String login() throws IOException {
+
+		carreraEstudianteLogeado = null;
+		estudianteLogeado = null;
+		estudianteExiste = false;
+
+		pathExcelEstudiante = BASE_PATH + "";
+
+
+		return "login.jsp";
+	}
+
+	@GetMapping("/dataUpdate")
+	public String dataUpdate() {
+		return "dataUpdate.jsp";
+	}
+
+	@GetMapping("/semester")
+	public String semester() {
+		return "availableSubjects.jsp";
+	}
+
+	@GetMapping("/userUpdate")
+	public String userUpdate() {
+		return "userUpdate.jsp";
+	}
+
+
+	@GetMapping("/register")
+	public String register() {
+		return "register.jsp";
+	}
+
+	@GetMapping("/closeSemester")
+	public String closeSemester(ModelMap modelMap) {
+		modelMap.put("nombreEstudianteCS", estudianteEjemplo.getNombreEstudiante());
+		return "closeSemester.jsp";
+	}
+
+	@GetMapping("/socialUpdate")
+	public String socialUpdate() {
+		return "socialUpdate.jsp";
+	}
+
+	@GetMapping("/activitiesUpdate")
+	public String activitiesUpdate() {
+		return "activitiesUpdate.jsp";
+	}
+
+
 }
