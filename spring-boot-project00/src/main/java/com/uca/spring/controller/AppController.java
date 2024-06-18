@@ -636,5 +636,39 @@ public class AppController {
 		return "activitiesUpdate.jsp";
 	}
 
+	//// ACTIONS PARA post mapping (para botones):
+	// -------------------------------------------------------------------------------------------------------------------------
+
+	// Actualizar nombre de usuario:
+	@PostMapping("/userUpdateSuccess")
+	public String userUpdateSuccess(@RequestParam("name") String name, @RequestParam("carnet") String carnet,
+			ModelMap modelMap) {
+
+		// Lista de tabla Estudiante
+		List<Estudiante> estudiantes = new ArrayList<Estudiante>();
+		estudianteService.getEstudiantes().forEach(e -> estudiantes.add(e));
+
+		if (name.isEmpty() || carnet.isEmpty()) {
+			modelMap.put("errorUU", "No deje espacios en blanco");
+			return "userUpdate.jsp";
+		}
+		// Si el usuario que modificara no esta en la bdd
+		else if (!carnet.equals(estudianteLogeado.getCarnetEstudiante().toString())) {
+			modelMap.put("errorUU", "Carnet incorrecto");
+			return "userUpdate.jsp";
+		} else {
+
+			estudiantes.forEach(e -> {
+				if (e.getCarnetEstudiante().toString().equals(estudianteLogeado.getCarnetEstudiante().toString())) {
+
+					estudianteService.updateEstudianteName(e, name);
+				}
+			});
+
+			modelMap.put("nombreEstudianteUUS", estudianteEjemplo.getNombreEstudiante());
+			return "userUpdateSuccess.jsp";
+		}
+
+	}
 
 }
