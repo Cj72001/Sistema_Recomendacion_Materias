@@ -671,4 +671,160 @@ public class AppController {
 
 	}
 
+	// Action para marcar una materia de "materias habiles" (por medio se su
+	// correlativo) como aprobada
+	// y removerla de las posibles y agregar las nuevas posibles en funcion de esa
+	// aprobada
+	
+	List<String> prerrequisitos;
+
+	@PostMapping("/subjectsUpdateSuccess2")
+	public String subjectsUpdateSuccess2(@RequestParam("subject") String subject, ModelMap modelMap) {
+
+		if (subject.isEmpty()) {
+			modelMap.put("errorMA", "No deje espacios en blanco");
+
+			approvedSubjects(modelMap);
+			return "approvedSubjects.jsp";
+		} else if (subject.equals("0")) {
+			modelMap.put("errorMA", "No puede remover 'Bachillerato'");
+
+			approvedSubjects(modelMap);
+			return "approvedSubjects.jsp";
+		} else {
+
+			// POSIBLES MATERIAS DEL ESTUDIANTE LOGEADO:
+			List<String> materiasPosiblesIds = new ArrayList<String>();
+
+			String materiasPosiblesIdsEstudianteLogeado = carreraService
+					.getCarreraById(estudianteLogeado.getIdEstudiante()).getMateriasPosibles();
+			String[] split = materiasPosiblesIdsEstudianteLogeado.split(",");
+
+			for (int i = 0; i < split.length; i++) {
+				materiasPosiblesIds.add(split[i]);
+			}
+
+			cantMateriasPosibles = (carreraService.getCarreraById(estudianteLogeado.getIdEstudiante())
+					.getCantidadMateriasPosibles());
+
+			// materias aprobadas del estudiante logueado:
+			List<String> materiasAprobadasIds = new ArrayList<String>();
+
+			String materiasAprobadasIdsEstudianteLogeado = carreraService
+					.getCarreraById(estudianteLogeado.getIdEstudiante()).getMateriasAprobadas();
+			String[] split1 = materiasAprobadasIdsEstudianteLogeado.split(",");
+
+			for (int i = 0; i < split1.length; i++) {
+				materiasAprobadasIds.add(split1[i]);
+			}
+
+			cantMateriasAprobadas = (carreraService.getCarreraById(estudianteLogeado.getIdEstudiante())
+					.getCantidadMateriasAprobadas());
+
+			// verificamos si la materia que quiere remover en subject
+			// la tiene disponible y la puede agregar
+			if (!materiasAprobadasIds.contains(subject)) {
+				modelMap.put("errorMA", "No puede remover una materia que no tiene aprobada");
+
+				approvedSubjects(modelMap);
+				return "approvedSubjects.jsp";
+			} else {
+				// sino se elimina de la lista de ids de materias aprobadas y
+				// se pasa al string de las materias posibles (eliminado de aqui todas aquellas
+				// en las cuales
+				// esta removida es prequisito)
+
+				// Agregando las materias posibles en funcion de la que se esta removiendo:
+				//
+				//
+
+				// Lista de tabla Materia
+				List<Materia> materias = new ArrayList<Materia>();
+				materiaService.getMaterias().forEach(m -> {
+					materias.add(m);
+				});
+
+				// obteniendo las materias posibles a partir del id aprobado removido
+				// y buscando las materias que tengan ese prerrequisito
+				materias.forEach(m -> {
+
+					// por cada materia existente, se iran guardando los prerrequisitos
+					prerrequisitos = Arrays.asList(m.getPreRequisito().split(","));
+
+					prerrequisitos.forEach(p -> {
+
+						// para cada prerrequisito veremos si es el mismo id de la materia aprobada
+						// removida
+						if (subject.equals(p)) {
+
+							// entonces si el prerrequisito es el mismo
+							// seleccionaremos la materia
+							// si esa materia esta en materias posibles ya la removeremos:
+							if (materiasPosiblesIds.contains(m.getIdMateria().toString())) {
+
+								materiasPosiblesIds.remove(m.getIdMateria().toString());
+								cantMateriasPosibles--;
+
+							}
+						}
+					});
+
+				});
+
+				// Sumandole la aprobada removida
+				cantMateriasPosibles += 1;
+
+				// Agregando la aprobada removida a las posibles
+				materiasPosiblesIds.add(subject);
+				nuevasMateriasPosibles = String.join(",", materiasPosiblesIds);
+
+				// Removiendo la materia aprobada de las materias aprobadas:
+				int indexNota = materiasAprobadasIds.indexOf(subject);
+				materiasAprobadasIds.remove(subject);
+				nuevasMateriasAprobadas = String.join(",", materiasAprobadasIds);
+
+				// eliminando la nota de la materia a remover (en su indice respectivo)
+				String[] notasAprobadas = carreraService.getCarreraById(estudianteLogeado.getIdEstudiante())
+						.getNotaAprobada().split(",");
+
+				List<String> na = new ArrayList<>();
+
+				for (int i = 0; i < notasAprobadas.length; i++) {
+					if (i != indexNota) {
+						na.add(notasAprobadas[i]);
+					}
+				}
+
+				String nuevasNotasAprobadas = String.join(",", na);
+
+				// cantidad de materia aprobadas
+				cantMateriasAprobadas -= 1;
+
+				// Actualizando materias posibles y materias aprobadas
+				Carrera newCarrera = carreraService.getCarreraById(estudianteLogeado.getIdEstudiante());
+				newCarrera.setMateriasPosibles(nuevasMateriasPosibles);
+				newCarrera.setMateriasAprobadas(nuevasMateriasAprobadas);
+				newCarrera.setNotaAprobada(nuevasNotasAprobadas);
+				newCarrera.setCantidadMateriasPosibles(cantMateriasPosibles);
+				newCarrera.setCantidadMateriasAprobadas(cantMateriasAprobadas);
+				carreraService.updateCarreraG(newCarrera,
+						carreraService.getCarreraById(estudianteLogeado.getIdEstudiante()));
+
+				// Reiniciando variables:
+				cantMateriasAprobadas = 0;
+				cantMateriasPosibles = 0;
+				prerrequisitos = new ArrayList<>();
+
+			}
+
+			// mostrar mensaje que la lista se ha actualizado correctamente
+			modelMap.put("nombreEstudianteUS", estudianteEjemplo.getNombreEstudiante());
+
+			return "subjectsUpdateSuccess.jsp";
+
+		}
+
+	}
+
+
 }
