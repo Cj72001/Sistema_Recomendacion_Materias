@@ -826,5 +826,121 @@ public class AppController {
 
 	}
 
+	// Action para marcar una materia de "materias habiles" (por medio se su
+	// correlativo) como aprobada
+	// y removerla de las posibles y agregar las nuevas posibles en funcion de esa
+	// aprobada
+
+	@PostMapping("/subjectsUpdateSuccess")
+	public String subjectsUpdateSuccess(ModelMap modelMap, @RequestParam("file") MultipartFile file) throws EncryptedDocumentException, IOException {
+
+		 if (!file.isEmpty()) {
+            try {
+                
+				eliminarFiles();
+
+				String newFileName = file.getOriginalFilename();
+					// Construir la nueva ruta del archivo
+					pathExcelEstudiante = BASE_PATH + newFileName;
+	
+					// Guardar el nuevo archivo en la ruta especificada
+					byte[] bytes = file.getBytes();
+					Path path = Paths.get(pathExcelEstudiante);
+					Files.write(path, bytes);
+				
+
+			// LAS POSIBLES MATERIAS DEL ESTUDIANTE LOGEADO:
+			List<String> materiasPosiblesIds = new ArrayList<String>();
+
+
+
+			// Materias aprobadas del estudiante logueado:
+			List<String> materiasAprobadasIds = new ArrayList<String>();
+
+			nuevasNotasAprobadas = "0";
+			cantMateriasAprobadas = 0;
+
+			materiasAprobadasIds. add("0");
+			notasExcel = Util.getNotasExcel(new File(pathExcelEstudiante));
+			notasExcel.forEach((numeroCorrelativo, nota) -> {
+				materiasAprobadasIds.add(numeroCorrelativo);
+
+				nuevasNotasAprobadas += "," + nota;
+
+				cantMateriasAprobadas = cantMateriasAprobadas + 1;
+			});
+
+			nuevasMateriasAprobadas = String.join(",", materiasAprobadasIds);
+
+				
+				notasExcel.forEach((numeroCorrelativo, nota) -> {
+					materiasPosiblesIds.remove(numeroCorrelativo);
+
+				});
+
+				// Lista de tabla Materia
+				List<Materia> materias = materiaService.getMaterias();
+
+				List<MateriaExcel> materiasExcelPosibles = Util.getMateriasExcel(new File(pathExcelEstudiante));
+
+				cantMateriasPosibles = 0;
+
+				materiasExcelPosibles.forEach(m->{
+					materiasPosiblesIds.add(m.getIdMateria().toString());
+					cantMateriasPosibles++;
+				});
+
+				materias.forEach(m->{
+					if(m.getNombreMateria().toLowerCase().startsWith("optativa")){
+						materiasPosiblesIds.add(m.getIdMateria().toString());
+						cantMateriasPosibles++;
+					}
+				});
+
+				
+				 //Si en materias posibles esta "Bachillerato"
+				if(materiasPosiblesIds.contains("0")){
+					materiasPosiblesIds.remove("0");
+					cantMateriasPosibles = cantMateriasPosibles - 1;
+				}
+
+				nuevasMateriasPosibles = String.join(",", materiasPosiblesIds);
+
+
+				// Actualizando materias posibles y materias aprobadas
+				Carrera newCarrera = carreraService.getCarreraById(estudianteLogeado.getIdEstudiante());
+				newCarrera.setMateriasPosibles(nuevasMateriasPosibles);
+				newCarrera.setMateriasAprobadas(nuevasMateriasAprobadas);
+				newCarrera.setNotaAprobada(nuevasNotasAprobadas);
+				newCarrera.setCantidadMateriasPosibles(cantMateriasPosibles);
+				newCarrera.setCantidadMateriasAprobadas(cantMateriasAprobadas);
+				carreraService.updateCarreraG(newCarrera,
+						carreraService.getCarreraById(estudianteLogeado.getIdEstudiante()));
+
+				// Reiniciando variables:
+				prerrequisitos = new ArrayList<>();
+
+
+			// mostrar mensaje que la lista se ha actualizado correctamente
+			modelMap.put("nombreEstudianteUS", estudianteEjemplo.getNombreEstudiante());
+
+			return "subjectsUpdateSuccess.jsp";
+
+            } catch (IOException e) {
+                e.printStackTrace();
+
+				modelMap.put("errorSU", "Error al subir el archivo.");
+				return "availableSubjects.jsp";
+            }
+        } else {
+            
+			modelMap.put("errorSU", "El archivo está vacío.");
+			return "availableSubjects.jsp";
+        }
+
+			
+
+
+	}
 
 }
