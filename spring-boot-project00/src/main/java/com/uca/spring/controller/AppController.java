@@ -110,7 +110,21 @@ public class AppController {
 	Materia materiaEstudianteEjemplo43 = new Materia();
 	Materia materiaEstudianteEjemplo44 = new Materia();
 
-	
+	// vars que se ocupan a nivel global para cada action
+	boolean contraActualizada = false;
+	boolean usuarioActualizado = false;
+	boolean miMateriaEncontrada = false;
+	boolean materiaPosible = false;
+	String nuevasMateriasPosibles = "";
+	String nuevasMateriasAprobadas = "";
+	HashMap<String, String> notasExcel = new HashMap<>();
+	List<String> prerrequisitosSinAprobadas;
+	String nuevasNotasAprobadas = "0";
+	int cantMateriasAprobadas = 0, cantMateriasPosibles = 0;
+
+	private static final String BASE_PATH = "src/main/java/com/uca/spring/dataE/";
+    private static String pathExcelEstudiante = BASE_PATH + ""; // Default file
+
 
 	//// ACTIONS PARA RUTAS (para cargar jsp):
 	// -------------------------------------------------------------------------------------------------------------------------
@@ -940,6 +954,48 @@ public class AppController {
 
 			
 
+
+	}
+
+	public void eliminarFiles(){
+		// Borrar todos los archivos existentes en la ruta
+        File directory = new File(BASE_PATH);
+        if (!directory.exists()) {
+            System.out.println("La ruta especificada no existe: " + BASE_PATH);
+            return;
+        }
+        if (!directory.isDirectory()) {
+            System.out.println("La ruta especificada no es un directorio: " + BASE_PATH);
+            return;
+        }
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isFile()) {
+                    boolean deleted = f.delete();
+                    if (deleted) {
+                        System.out.println("Archivo eliminado: " + f.getName());
+                    } else {
+                        System.out.println("No se pudo eliminar el archivo: " + f.getName());
+                    }
+                }
+            }
+        } else {
+            System.out.println("No se encontraron archivos en la ruta: " + BASE_PATH);
+        }
+	}
+
+	@PostMapping("/addSubject")
+	public String addSubject(@RequestParam("materia") String materia, ModelMap modelMap) {
+
+		if (materia.isEmpty()) {
+			modelMap.put("errorASS", "No deje espacios en blanco");
+			return "availableSubjects.jsp";
+		} else {
+			modelMap.put("nombreEstudianteASS", estudianteEjemplo.getNombreEstudiante());
+			return "addSemesterSuccess.jsp";
+		}
 
 	}
 
