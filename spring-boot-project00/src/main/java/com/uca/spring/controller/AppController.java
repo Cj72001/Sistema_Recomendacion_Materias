@@ -998,7 +998,7 @@ public class AppController {
 		}
 
 	}
-
+	
 	// para loggearse
 	@PostMapping("/loginn")
 	public String login(@RequestParam("CARNET") Integer CARNET, @RequestParam("PASSWORD") String PASSWORD,
@@ -1076,5 +1076,56 @@ public class AppController {
 
 	}
 
+	// para registrar estudiante
+	@PostMapping("/registrarEstudiante")
+	public String registrarEstudiante(@RequestParam("nombreRe") String nombreRe,
+			@RequestParam("carnetRe") String carnetRe, @RequestParam("passwordRe") String passwordRe,
+			@RequestParam("passwordRe2") String passwordRe2, ModelMap modelMap) {
+
+		if (nombreRe.isEmpty() || carnetRe.isEmpty() || passwordRe.isEmpty() || passwordRe.isEmpty()) {
+			// Se actualizo la contrasena
+
+			modelMap.put("errorRe", "No deje espacios en blanco");
+			return "register.jsp";
+		} else {
+
+			Estudiante newEstudiante = new Estudiante();
+			newEstudiante.setNombreEstudiante(nombreRe);
+			newEstudiante.setCarnetEstudiante(Integer.parseInt(carnetRe));
+			newEstudiante.setContrasenaEstudiante(passwordRe2);
+
+			// id autoincrementable:
+
+			// Lista de tabla Estudiante
+			List<Estudiante> estudiantes = new ArrayList<Estudiante>();
+			estudianteService.getEstudiantes().forEach(e -> estudiantes.add(e));
+
+			int lastIdx = estudiantes.size() - 1;
+			Estudiante lastEstudiante = estudiantes.get(lastIdx);
+
+			int idEstudiante = lastEstudiante.getIdEstudiante() + 1;
+			newEstudiante.setIdEstudiante(idEstudiante);
+			newEstudiante.setCarreraEstudiante(idEstudiante);
+
+			// creando estudiante:
+			estudianteService.createEstudiante(newEstudiante);
+
+			// carrera de nuewEstudiante
+			Carrera newCarrera = new Carrera();
+			newCarrera.setIdCarrera(idEstudiante);
+			newCarrera.setUvAprobadas(0);
+			newCarrera.setCantidadMateriasAprobadas(0);
+			newCarrera.setMateriasAprobadas("0");
+			newCarrera.setNotaAprobada("0");
+			newCarrera.setCantidadMateriasPosibles(9);
+			newCarrera.setMateriasPosibles("1,2,3,4,17,23,32,37,43");
+			newCarrera.setCantidadActividadesExtracurriculares(0);
+			carreraService.createCarrera(newCarrera);
+
+			modelMap.put("nombreEstudianteRegistrado", nombreRe);
+			return "regUpdateSuccess.jsp";
+		}
+
+	}
 
 }
