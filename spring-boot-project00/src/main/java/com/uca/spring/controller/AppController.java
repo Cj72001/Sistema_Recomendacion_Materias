@@ -125,7 +125,7 @@ public class AppController {
 	private static final String BASE_PATH = "src/main/java/com/uca/spring/dataE/";
     private static String pathExcelEstudiante = BASE_PATH + ""; // Default file
 
-
+	
 	//// ACTIONS PARA RUTAS (para cargar jsp):
 	// -------------------------------------------------------------------------------------------------------------------------
 
@@ -998,5 +998,83 @@ public class AppController {
 		}
 
 	}
+
+	// para loggearse
+	@PostMapping("/loginn")
+	public String login(@RequestParam("CARNET") Integer CARNET, @RequestParam("PASSWORD") String PASSWORD,
+			ModelMap modelMap) {
+
+				//materias
+
+		if (CARNET.toString().isEmpty() || PASSWORD.isEmpty()) {
+			modelMap.put("errorL", "No deje espacios en blanco");
+			return "login.jsp";
+		} else {
+
+			// Registrando log
+			Logs newLog = new Logs();
+			// Obteniendo la fecha y hora actual
+			LocalDateTime fechaActual = LocalDateTime.now();
+
+			// Formateando la fecha como una cadena de texto en el formato deseado
+			DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			String fechaFormateada = fechaActual.format(formatoFecha);
+
+			// Estableciendo la fecha en el objeto newLog
+			newLog.setFecha(fechaFormateada);
+			newLog.setCarnet(CARNET);
+			logsService.createLog(newLog);
+
+			// Lista de tabla Estudiante
+			List<Estudiante> estudiantes = new ArrayList<Estudiante>();
+			estudianteService.getEstudiantes().forEach(e -> estudiantes.add(e));
+
+			// Lista tabla Carrera
+			List<Carrera> carreras = new ArrayList<Carrera>();
+			carreraService.getCarreras().forEach(c -> carreras.add(c));
+
+			// Si no hay usuarios:
+			if (estudiantes.isEmpty() || carreras.isEmpty()) {
+				modelMap.put("errorL", "Datos incorrectos");
+				return "login.jsp";
+			}
+
+			// Vamos a evaluar si el estudiante que desea logearse existe y manipular sus
+			// respectivas banderas:
+			estudiantes.forEach(e -> {
+				if (e.getCarnetEstudiante().toString().equals(CARNET.toString()) && e.getContrasenaEstudiante().equals(PASSWORD)) {
+					estudianteLogeado = e;
+					estudianteExiste = true;
+				}
+			});
+
+			if (estudianteExiste) {
+
+				carreras.forEach(c -> {
+					if (estudianteLogeado.getCarreraEstudiante().equals(c.getIdCarrera())) {
+						carreraEstudianteLogeado = c;
+					}
+				});
+
+				// menu atributos sobre la carrera del estudiante:
+				modelMap.put("nombreEstudiante", estudianteLogeado.getNombreEstudiante());
+				modelMap.put("numeroMateriasAprobadasEstudiante",
+						carreraEstudianteLogeado.getCantidadMateriasAprobadas());
+				modelMap.put("materiasDisponiblesEstudiante", carreraEstudianteLogeado.getCantidadMateriasPosibles());
+				modelMap.put("actividadesExtracurricularesEstudiante",
+						carreraEstudianteLogeado.getCantidadActividadesExtracurriculares());
+
+				return "mainPage.jsp";
+
+			}
+
+			else {
+				modelMap.put("errorL", "Datos incorrectos");
+				return "login.jsp";
+			}
+		}
+
+	}
+
 
 }
