@@ -1,6 +1,71 @@
 package com.uca.spring.util;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
+import org.apache.poi.EncryptedDocumentException;
+import com.uca.spring.model.MateriaExcel;
 
 public class Util {
+
+	//Obtener materias aprobadas desde excel
+	public static List<MateriaExcel> getMateriasExcelAprobadas(File f) throws EncryptedDocumentException, IOException{
+
+		// File f = new File(pathExcel);
+		InputStream inp = new FileInputStream(f);
+		Workbook wb = WorkbookFactory.create(inp);
+		Sheet sheet = wb.getSheetAt(0);
+	
+		// se empezara desde la fila 6 porque desde ahi empiezan los datos 
+		// los datos llegan hasta la fila 49
+		int rowInit = 6, rowLimit = 50;
+		
+		//Pos de la fila
+		int rowPos = rowInit;
+		Row row = sheet.getRow(rowPos);
+	
+		List<MateriaExcel> materiasExcelAprobadas = new ArrayList<>();
+	
+		  while(rowPos != rowLimit){
+			Cell codigoMateriaCell = row.getCell(1),
+			notaMateriaCell = row.getCell(7),
+			nombreMateriaCell = row.getCell(3);
+			//unidadesValorativasMateriaCell = row.getCell(6),
+	
+			String codigoMateriaValue = codigoMateriaCell.toString(),
+			notaMateriaValue = notaMateriaCell.toString(),
+			nombreMateriaValue = nombreMateriaCell.toString();
+	
+			MateriaExcel newMateria = new MateriaExcel();
+						 newMateria.setNombreMateria(nombreMateriaValue);
+						 newMateria.setIdMateria(getCorrelativoByCodigo(codigoMateriaValue).toString());
+						 newMateria.setNota(notaMateriaValue);
+	
+	
+			//Agregando materias aprobadas:
+			if( !(notaMateriaValue == "")){
+				
+				materiasExcelAprobadas.forEach(m->{
+								if(m.getIdMateria().equals(newMateria.getIdMateria())){
+									materiaAprobadaAgregada = true;
+								}
+							});
+				
+							if(!materiaAprobadaAgregada && Double.parseDouble(newMateria.getNota()) >= 6.0){
+								materiasExcelAprobadas.add(newMateria);
+							}
+				
+			}
+			  rowPos++;  
+			  row = sheet.getRow(rowPos);
+		  }
+	
+		  return materiasExcelAprobadas;
+		}
 
 	//Obtener notas del excel de tutorias (materias aprobadas)
 	public static HashMap<String, String> getNotasExcel(File f) throws EncryptedDocumentException, IOException{
