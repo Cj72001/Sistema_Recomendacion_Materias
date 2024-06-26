@@ -2,6 +2,46 @@ package com.uca.spring.util;
 
 public class Util {
 
+	//Obtener notas del excel de tutorias (materias aprobadas)
+	public static HashMap<String, String> getNotasExcel(File f) throws EncryptedDocumentException, IOException{
+
+		// String pathExcel = "C:\\Users\\omarf\\Downloads\\notas2.xlsx"; 	
+		// File f = new File(pathExcel);
+		InputStream inp = new FileInputStream(f);
+		Workbook wb = WorkbookFactory.create(inp);
+		Sheet sheet = wb.getSheetAt(0);
+	
+		// se empezara desde la fila 6 porque desde ahi empiezan los datos 
+		// los datos llegan hasta la fila 49
+		int rowInit = 6, rowLimit = 50;
+		
+		//Pos de la fila
+		int rowPos = rowInit;
+	
+		Row row = sheet.getRow(rowPos);
+	
+		//En el siguiente map se almacenaran (numeroCorrelativo, nota)
+		HashMap<String, String> notasExcel = new HashMap<>();
+	
+		  while(rowPos != rowLimit){
+			Cell codigoMateriaCell = row.getCell(1),
+			notaMateriaCell = row.getCell(7);
+	
+			String codigoMateriaValue = codigoMateriaCell.toString();
+			String notaMateriaValue = notaMateriaCell.toString();
+			
+			   if(!(notaMateriaValue == "")){
+				notasExcel.put( getCorrelativoByCodigo(codigoMateriaValue).toString(), notaMateriaValue);
+			   }
+			  
+			  rowPos++;  
+			  row = sheet.getRow(rowPos);
+		  }
+	
+		  return notasExcel;
+		}
+
+
 		public static Integer getCorrelativoByCodigo(String codigo) {
 			 // Eliminar ceros iniciales
 			 codigo = codigo.replaceFirst("^0+(?!$)", "");
