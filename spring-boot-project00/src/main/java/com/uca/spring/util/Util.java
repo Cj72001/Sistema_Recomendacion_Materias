@@ -1,6 +1,8 @@
 package com.uca.spring.util;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,9 +10,128 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
 import com.uca.spring.model.MateriaExcel;
 
+import weka.core.DenseInstance;
+import weka.core.Instances;
+
 public class Util {
+
+//_________________________________________________________________________________________________
+//Metodos independientes de la recomendacion:
+
+   	public static boolean materiaAprobadaAgregada = false;
+	public static List<File> obtenerArchivosExcelEstudiantes() {
+		materiaAprobadaAgregada = false;
+
+        List<File> archivosExcelEstudiantes = new ArrayList<>();
+
+		String rutaCarpeta = "src/main/java/com/uca/spring/data";
+        File carpeta = new File(rutaCarpeta);
+        if (carpeta.exists() && carpeta.isDirectory()) {
+            File[] archivos = carpeta.listFiles();
+            if (archivos != null) {
+                for (File archivo : archivos) {
+                    if (archivo.isFile() && archivo.getName().endsWith(".xlsx")) {
+                        archivosExcelEstudiantes.add(archivo);
+                    }
+                }
+            }
+        } else {
+            System.err.println("La ruta especificada no es una carpeta válida.");
+        }
+        return archivosExcelEstudiantes;
+    }
+
+
+
+	//Obtener materias posibles que aprobaron todos los prerrequisitos segun el excel
+	public static List<MateriaExcel> getMateriasExcel(File f) throws EncryptedDocumentException, IOException{
+
+	// String pathExcel = "C:\\Users\\omarf\\Downloads\\notas2.xlsx"; 	
+	// File f = new File(pathExcel);
+    InputStream inp = new FileInputStream(f);
+    Workbook wb = WorkbookFactory.create(inp);
+    Sheet sheet = wb.getSheetAt(0);
+
+	// se empezara desde la fila 6 porque desde ahi empiezan los datos 
+	// los datos llegan hasta la fila 49
+    int rowInit = 6, rowLimit = 50;
+	
+	//Pos de la fila
+	int rowPos = rowInit;
+
+    Row row = sheet.getRow(rowPos);
+
+	List<MateriaExcel> materiasExcelPosible = new ArrayList<>();
+	List<MateriaExcel> materiasExcelAprobadas = getMateriasExcelAprobadas(f);
+
+      while(rowPos != rowLimit){
+		Cell codigoMateriaCell = row.getCell(1),
+		prerreqMateriaCell = row.getCell(2),
+		notaMateriaCell = row.getCell(7),
+		nombreMateriaCell = row.getCell(3);
+		//unidadesValorativasMateriaCell = row.getCell(6),
+
+		String codigoMateriaValue = codigoMateriaCell.toString(),
+		notaMateriaValue = notaMateriaCell.toString(),
+		nombreMateriaValue = nombreMateriaCell.toString();
+
+		MateriaExcel newMateria = new MateriaExcel();
+					 newMateria.setNombreMateria(nombreMateriaValue);
+					 newMateria.setIdMateria(getCorrelativoByCodigo(codigoMateriaValue).toString());
+					 newMateria.setNota(notaMateriaValue);
+
+
+		//vamos a ignorar los casos donde no existen prerrequisitos: prerreqMateriaCell.toString() == "-", es decir, primer ciclo
+		if(notaMateriaValue == "" && prerreqMateriaCell.toString() != "-"){
+
+			String prerreqMateriaStr = prerreqMateriaCell.toString();
+			List<String> prerreqMateriaValue = Arrays.asList(prerreqMateriaStr.split(","));
+			List<String> prerreqMateria = new ArrayList<>();
+
+			//Obteniendo todos los ids prerrequisito
+			prerreqMateriaValue.forEach(p->{
+				prerreqMateria.add(Util.getCorrelativoByCodigo(p).toString());
+			});
+
+			List<String> idsMateriasAprobadasExcel = new ArrayList<>();
+
+			materiasExcelAprobadas.forEach(m->{
+				idsMateriasAprobadasExcel.add(m.getIdMateria());
+			});
+
+			if(idsMateriasAprobadasExcel.containsAll(prerreqMateria)){
+				
+				materiasExcelAprobadas.forEach(m->{
+					prerreqMateria.forEach(m2->{
+
+						if(m.getIdMateria().equals(m2) && !newMateria.getPreRequisito().contains(m)){
+
+							newMateria.getPreRequisito().add(m);
+
+							
+						}
+						
+					});
+				});
+
+				materiasExcelPosible.add(newMateria);
+			}
+		}
+
+          rowPos++;  
+          row = sheet.getRow(rowPos);
+      }
+
+
+
+	  return materiasExcelPosible;
+	}
 
 	//Obtener materias aprobadas desde excel
 	public static List<MateriaExcel> getMateriasExcelAprobadas(File f) throws EncryptedDocumentException, IOException{
