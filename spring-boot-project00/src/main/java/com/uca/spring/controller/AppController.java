@@ -124,8 +124,8 @@ public class AppController {
 
 	private static final String BASE_PATH = "src/main/java/com/uca/spring/dataE/";
     private static String pathExcelEstudiante = BASE_PATH + ""; // Default file
-
 	
+
 	//// ACTIONS PARA RUTAS (para cargar jsp):
 	// -------------------------------------------------------------------------------------------------------------------------
 
@@ -428,6 +428,24 @@ public class AppController {
 		materiaEstudianteEjemplo44.setPreRequisito("40");
 		materiaService.createMateria(materiaEstudianteEjemplo44);
 
+
+		try {
+			//notasExcel = Util.getNotasExcel(new File("C:\\Users\\omarf\\Downloads\\notas2.xlsx"));
+			String directorioActual = System.getProperty("user.dir");
+			System.out.println("Directorio actual: " + directorioActual);
+
+			notasExcel = Util.getNotasExcel(new File(pathExcelEstudiante));
+			 
+		} catch (EncryptedDocumentException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		//Entrenando el modelo al iniciar
+		Util.entrenarClasificador();
+
+		//Eliminar archivos de dataE
+		eliminarFiles();
 
 		return "login.jsp";
 	}
@@ -998,7 +1016,7 @@ public class AppController {
 		}
 
 	}
-	
+
 	// para loggearse
 	@PostMapping("/loginn")
 	public String login(@RequestParam("CARNET") Integer CARNET, @RequestParam("PASSWORD") String PASSWORD,
