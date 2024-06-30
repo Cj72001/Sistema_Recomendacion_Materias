@@ -21,6 +21,241 @@ import weka.core.Instances;
 
 public class Util {
 
+// Materias recomendadas
+static List<MateriaExcel> materiasR = new ArrayList<>();
+
+// Lista de materias que son prerrequisitos de las posibles
+static String[] idsMateriasPosiblesPrerrequisitos = new String[0];
+static int materiasPosiblesPrerrequisitosSize = 0;
+
+// Nota minima
+static double notaMinima = 7.0;
+
+// Referente a
+// ML:____________________________________________________________________________________________________
+// Crear las instancias con los datos de entrenamiento
+//Establecer que atributos evaluara ()
+
+// Crear el atributo "materia" como nominal
+static Attribute atributoMateria = new Attribute("materiaId");
+
+// Crear el atributo "notas" como nominal
+static Attribute atributoPrerr = new Attribute("prerrequisitos");
+// Crear el atributo "notas" como nominal
+static Attribute atributoMenorNotaPrerr = new Attribute("nota");
+
+// Crear los valores discretos para el atributo recomendacion
+static String valorRecomendado = "Recomendado";
+static String valorNoRecomendado = "No Recomendado";
+static Attribute atributoRecomendacion = new Attribute("recomendacion",
+		Arrays.asList(valorRecomendado, valorNoRecomendado));
+
+// Crear el arreglo de atributos que evaluara
+static Attribute[] atributosArray = {atributoMateria, atributoPrerr, atributoMenorNotaPrerr, atributoRecomendacion };
+static ArrayList<Attribute> atributosLista = new ArrayList<>(Arrays.asList(atributosArray));
+
+// Crear el conjunto de datos vacío con los atributos
+static Instances dataset = new Instances("RecomendacionMaterias", atributosLista, 0);
+
+// Construir el clasificador Naive Bayes
+static NaiveBayes clasificador = new NaiveBayes();
+
+// ____________________________________________________________________________________________________________________
+
+// metodo de aprendizaje
+
+static String prerrequisitosStr = "";
+static double notaMinimaPrerrequisitos = 10.0;
+
+static int cantArchivosExcelDataSet = 0;
+
+public static void entrenarClasificador(){
+
+	cantArchivosExcelDataSet = 0;
+
+	List<File> archivosExcelEstudiantes = new ArrayList<>();
+	archivosExcelEstudiantes = Util.obtenerArchivosExcelEstudiantes();
+	
+	List<MateriaExcel> materiasPosiblesExcel = new ArrayList<>();
+	archivosExcelEstudiantes.forEach(archivo ->{
+
+		try {
+
+			materiasPosiblesExcel.addAll(Util.getMateriasExcel(archivo));
+
+		} catch (EncryptedDocumentException | IOException e) {
+			e.printStackTrace();
+		}
+
+		cantArchivosExcelDataSet++;
+	});
+
+	
+	System.out.println("Se recuperaron: " + cantArchivosExcelDataSet + " archivos");
+	System.out.println();
+	System.out.println("Materias recuperadas: ");
+	materiasPosiblesExcel.forEach(m->{
+		System.out.println("______________________________________________");
+		System.out.println("Numero Correlativo Materia Posible: "+ m.getIdMateria()+ " "+ m.getNota());
+		System.out.println("PRERREQUISITOS APROBADOS:");
+		m.getPreRequisito().forEach(m2->{
+
+			System.out.println("Numero Correlativo: "+ m2.getIdMateria()+ ", Nota: "+ m2.getNota());
+		});
+
+	});
+	System.out.println("DataSet listo");
+
+	
+
+	//Tomaremos las materias posibles del 
+	//y evaluaremos las materias prerrequisito de cada materia de cada estudiante del DataSet 
+	materiasPosiblesExcel.forEach(m->{
+		Instance instancia = new DenseInstance(4);
+		prerrequisitosStr = "";
+		
+		//Evaluamos el idMateria
+		instancia.setValue(atributosArray[0], Integer.parseInt(m.getIdMateria()));
+
+		//Evaluamos sus prerrequisitos
+		m.getPreRequisito().forEach(m2->{
+
+			//Evaluaremos sus prerrequisito, con el fin de obtener la nota minima de ellos
+			//y poder registrar un hashCode relacionado a un Str relacionado a los prerrequisitos
+			//Ej: 
+			//notaMinimaPrerrequisitos = 7.0
+			//prerrequisitoStr = "172210" => .hashCode()
+			//Con el fin de que el clasificador aprenda a recomendar en funcion de una nota minima
+			//Y su hashCode relacionado a los prerrquisitos 
+			if(Double.parseDouble(m2.getNota()) <= notaMinimaPrerrequisitos){
+				notaMinimaPrerrequisitos = Double.parseDouble(m2.getNota());
+			}
+
+			//Creando la Str relacionada a los prerrequisitos
+			prerrequisitosStr += m2.getIdMateria();
+		});
+
+		//seteando el resultado de las cadenas prerrequisitosStr y la nota minima de los prerrequisitos
+		instancia.setValue(atributosArray[1], prerrequisitosStr.hashCode());
+		instancia.setValue(atributosArray[2], notaMinimaPrerrequisitos);
+
+		//Si la nota minima de los prerrequisitos es menor a la recomendada
+		//entonces el atributo de recomendacion sera "No Recomendado"
+		//asociandolo al hashCode de las materias prerrequisito
+		if(notaMinimaPrerrequisitos >= notaMinima){
+			instancia.setValue(atributosArray[3], "Recomendado");
+		}
+		else{
+			instancia.setValue(atributosArray[3], "No Recomendado");
+		}
+
+		notaMinimaPrerrequisitos = 10.0;
+
+		
+		dataset.add(instancia);
+
+	});
+
+	
+	// Entrenar el clasificador Naive Bayes
+	dataset.setClass(atributoRecomendacion);
+	try {
+		clasificador.buildClassifier(dataset);
+
+		System.out.println();
+		System.out.println("Clasificador entrenado con exito");
+		System.out.println("Se crearon: " + dataset.numInstances() + " instancias: ");
+		dataset.forEach(i->{
+			System.out.println(i);
+		});
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+
+	// Evaluacion del modelo
+    try {
+		Evaluation evaluacion = new Evaluation(dataset);
+	
+			// Realizar Leave-One-Out Cross-Validation
+			evaluacion.crossValidateModel(clasificador, dataset, dataset.numInstances(), new Random(1));
+	
+			// Imprimir resultados de la evaluación
+			System.out.println();
+			System.out.println(evaluacion.toSummaryString("Resultados de Evaluación", false));
+			System.out.println(evaluacion.toMatrixString("Matriz de Confusión"));
+			System.out.println(evaluacion.toClassDetailsString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+}
+
+
+public static List<MateriaExcel> materiasRecomendadas(File archivo) {
+
+	//Limpiando la lista de materias recomendadas
+	materiasR.clear();
+
+	List<MateriaExcel> materiasPosiblesExcel = new ArrayList<>();
+
+		try {
+
+			materiasPosiblesExcel.addAll(Util.getMateriasExcel(archivo));
+
+		} catch (EncryptedDocumentException | IOException e) {
+			e.printStackTrace();
+		}
+
+	Instance instanciaRecomendacion = new DenseInstance(4);
+	prerrequisitosStr = "";
+
+	materiasPosiblesExcel.forEach(m->{
+		//Evaluamos el idMateria
+		instanciaRecomendacion.setValue(atributosArray[0], Integer.parseInt(m.getIdMateria()));
+
+		//Evaluamos sus prerrequisitos
+		m.getPreRequisito().forEach(m2->{
+
+				prerrequisitosStr += m2.getIdMateria();
+
+				if(Double.parseDouble(m2.getNota()) < notaMinimaPrerrequisitos){
+					notaMinimaPrerrequisitos = Double.parseDouble(m2.getNota());
+				}
+		
+		});
+
+		//seteando el resultado de las cadenas prerrequisitosStr y notaMinima de los prerreq
+		instanciaRecomendacion.setValue(atributosArray[1], prerrequisitosStr.hashCode());
+		instanciaRecomendacion.setValue(atributosArray[2], notaMinimaPrerrequisitos);
+
+		instanciaRecomendacion.setDataset(dataset);
+
+					// Realizar la clasificación/recomendación
+					double resultado = 0.0;
+					try {
+						resultado = clasificador.classifyInstance(instanciaRecomendacion);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					// Obtener el valor de recomendación predicho
+					String recomendacionPredicha = dataset.attribute("recomendacion").value((int) resultado);
+
+					System.out.println("Materia: " + m.getIdMateria() + ", atributo predicho: " + recomendacionPredicha);
+
+
+					if (recomendacionPredicha.equals("Recomendado")) {
+						materiasR.add(m);
+					} 
+
+		notaMinimaPrerrequisitos = 10.0;
+
+	});
+
+					
+
+	return materiasR;
+}
+
 //_________________________________________________________________________________________________
 //Metodos independientes de la recomendacion:
 
