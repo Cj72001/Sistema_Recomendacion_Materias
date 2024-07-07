@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.uca.spring.model.Carrera;
 
+
 public interface CarreraRepository extends JpaRepository<Carrera, Integer> {
 	
 }

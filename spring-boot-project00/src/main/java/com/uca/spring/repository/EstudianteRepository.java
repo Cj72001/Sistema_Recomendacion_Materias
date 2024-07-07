@@ -11,4 +11,5 @@ import com.uca.spring.model.Estudiante;
 
 public interface EstudianteRepository extends JpaRepository<Estudiante, Integer>{
 	
+	
 }
