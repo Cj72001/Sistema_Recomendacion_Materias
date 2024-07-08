@@ -10,16 +10,17 @@
  - [Modelos utilizados](#modelosutilizados) 
 	 - [Patrón de diseño MVC](#mvc)
 	 - [Diagrama Relacional](#diagrama)
+- [Manual de usuario](#manualUsuario) 
 - [Guía de instalación](#guia) 
 - [Compatibilidad de licencias](#compatibilidadLic)
  
  ## Aspectos generales 
  <a name="Aspectosgenerales"></a>
  
-**Objetivos del documento**  <a name="objetivos"></a>
+**Objetivos del documento:**  <a name="objetivos"></a>
 El presente manual técnico tiene como objetivo principal presentar y explicar de manera detallada los distintos aspectos y herramientas que se tomaron en cuenta para el desarrollo del sistema.
 
-**Descripción general**  <a name="desc"></a>
+**Descripción general:**  <a name="desc"></a>
 El sistema es una solución innovadora que utiliza Machine Learning para ayudar a los estudiantes de Ingeniería Informática de la Universidad Centroamericana José Simeón Cañas (UCA) a planificar y organizar de manera eficiente sus estudios. Con esta aplicación, los estudiantes pueden acceder fácilmente a un listado actualizado de las materias aprobadas y las materias que pueden llevar en el próximo ciclo académico, evitando el proceso engorroso de consultar la malla curricular, esperar al sistema SIM o hacer una lista manualmente.
 
 Gracias a la integración del Machine Learning, la aplicación puede ofrecer recomendaciones personalizadas basadas en el historial académico del estudiante y de otros roadmaps, brindando una experiencia de planificación más precisa y adaptada a las necesidades individuales.
@@ -91,9 +92,15 @@ Por un lado, nos permite tener una separación clara de responsabilidades. Adem�
 [![Diagrama-BDD-P-gina-1.png](https://i.postimg.cc/vHMsgz9C/Diagrama-BDD-P-gina-1.png)](https://postimg.cc/4n8MjpW1)
 
 Aclaracion: "materiasAprobadas" y "materiasPosibles" es un String compuesto por ids de la tabla "Materia", en la tabla "Carrera" se denota lo que el estudiante registra una vez subido su archivo excel.
-## Guia de instalación 
+
+## Manual de usuario
+<a name="manualUsuario"></a>
+- Link de documento para visualziación de manual de usuario: 
+https://drive.google.com/file/d/1pKahNanbmKTkWOXSuNPSWRoUFfSxvg-e/view?usp=sharing
+
+## Guía de instalación 
 <a name="guia"></a>
-- Link de documento para guia de instalacion: https://drive.google.com/file/d/13xMF3d7694R8EzMMIaYTl7asBafRahei/view?usp=sharing
+- Link de documento para guía de instalación: https://drive.google.com/file/d/13xMF3d7694R8EzMMIaYTl7asBafRahei/view?usp=sharing
 
 ## Compatibilidad de licencias
 <a name="compatibilidadLic"></a>
